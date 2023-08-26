@@ -3,20 +3,24 @@
 // This enables autocomplete, go to definition, etc.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@4.2.0'
 
-console.log("Hello from Functions!")
+const configuration = new Configuration({
+  organization: "org-BTicGkvgtmHHY4EkKFTa4dBL",
+  apiKey: Deno.env.get('OPENAI_API_KEY'),
+});
 
 serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
-  }
+  const { query } = await req.json();
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+  const openai = new OpenAIApi(configuration);
+
+  const completion = await openai.chat.completions.create({
+    messages: [{ role: "system", content: "Say Hello World! in portuguese." }],
+    model: "gpt-3.5-turbo-16k-0613",
+  });
+
+  return new Response(completion.choices[0])
 
 // To invoke:
 // curl -i --location --request POST 'http://localhost:54321/functions/v1/' \
