@@ -54,12 +54,23 @@ The description should be written in the ${language} and be less than 160 charac
 
 
 serve(async (req) => {
-  const { query } = await req.json();
+  const { type } = await req.json();
+  const prompt = '';
+
+  if (type === 'title') {
+    prompt = prompt_generate_title;
+  } else if (type === 'outline') {
+    prompt = prompt_generate_outline;
+  } else if (type === 'post') {
+    prompt = prompt_generate_post;
+  } lse if (type === 'meta') {
+    prompt = prompt_generate_metadescription;
+  }
 
   const openai = new OpenAIApi(configuration);
 
   const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: "Say Hello World! in portuguese." }],
+    messages: [{ role: "system", content: prompt }],
     model: "gpt-3.5-turbo-16k-0613",
   });
 
