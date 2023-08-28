@@ -5,6 +5,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import OpenAI from 'https://esm.sh/openai@4.2.0'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': '*',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Allow-Methods': 'POST,PATCH,OPTIONS'
+}
+
 const persona = 'CTO and Engineering Leaders';
 const tone_of_voice = 'Professional';
 const writing_style = 'Informative and Technical';
@@ -13,19 +20,36 @@ let _topic = '';
 let _title = '';
 let _outline = '';
 
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
 
-const prompt_generate_title = `Please ignore all previous instructions. 
+  const openai = new OpenAI({
+    apiKey: Deno.env.get('OPENAI_API_KEY'),
+  });
+
+  const { type, topic, title, outline } = await req.json();
+
+  console.log(topic);
+
+  _topic = topic;
+  _title = title;
+  _outline = outline;
+
+  const prompt_generate_title = `Please ignore all previous instructions. 
 You are an expert copywriter who writes catchy titles for blog posts.
 You have ${persona} as a persona.
 You have a ${tone_of_voice} tone of voice. You have a ${writing_style} writing style. 
 Write 10 catchy blog post titles with a hook for the topic "${_topic}". 
 The titles should be written in the ${language} language. 
 The titles should be less than 60 characters. 
-The titles should include the words from the topic "${_topic}". 
+The titles should include the words from the topic "${_topic}".
+The titles should be in javascript array format.
 Do not use single quotes, double quotes or any other enclosing characters. 
 Do not self reference. Do not explain what you are doing.`
 
-const prompt_generate_outline = `Please ignore all previous instructions. 
+  const prompt_generate_outline = `Please ignore all previous instructions. 
 You are an expert copywriter who creates content outlines.
 You have ${persona} as a persona.
 You have a ${tone_of_voice} tone of voice. You have a ${writing_style} writing style. 
@@ -34,39 +58,34 @@ The content outline should include a minimum of 20 headings and subheadings.
 The outline should be extensive and it should cover the entire topic. 
 Create detailed subheadings that are engaging and catchy. 
 Do not write the blog post, please only write the outline of the blog post. 
+The outline must be in HTML.
 Please do not number the headings. 
 Please add a newline space between headings and subheadings. 
-Do not self reference. Do not explain what you are doing.`
+Do not self reference. Do not explain what you are doing.
+Respond with the content inside a JSON for example: 
+{content:  "outline"}`
 
-const prompt_generate_post = `Please ignore all previous instructions. 
+  const prompt_generate_post = `Please ignore all previous instructions. 
 You are an expert copywriter who writes detailed and thoughtful blog articles.
 You have ${persona} as a persona.
 You have a ${tone_of_voice} tone of voice. You have a ${writing_style} writing style. 
 I will give you an outline for an article and I want you to expand in the ${language} language on each of the subheadings to create a complete article from it. 
 Please intersperse short and long sentences. Utilize uncommon terminology to enhance the originality of the content. 
-Please format the content in a professional format. 
+Please format the content in a professional format.
+The article must have at least 1000 words.
+The content must be in HTML. 
 Do not self reference. 
 Do not explain what you are doing. 
+Respond with the content inside a JSON for example: 
+{content:  "article"}
 The blog article outline is - "${_outline}"`
 
-const prompt_generate_metadescription = `Please ignore all previous instructions. 
+  const prompt_generate_metadescription = `Please ignore all previous instructions. 
 You are an expert copywriter who writes meta descriptions. 
 You have ${persona} as a persona.
 You have a ${tone_of_voice} tone of voice. You have a ${writing_style} writing style. 
 Write a meta description for the blog post titled ${_title}.
 The description should be written in the ${language} and be less than 160 characters.`
-
-
-serve(async (req) => {
-
-  const openai = new OpenAI({
-    apiKey: Deno.env.get('OPENAI_API_KEY'),
-  });
-
-  const { type, topic, title, outline } = await req.json();
-  _topic = topic;
-  _title = title;
-  _outline = outline;
 
   let prompt = '';
 
@@ -87,7 +106,7 @@ serve(async (req) => {
   });
 
   console.log(completion.choices[0]);
-  return new Response(completion.choices[0].message.content)
+  return new Response(completion.choices[0].message.content, { headers: corsHeaders })
 })
 
 // To invoke:
