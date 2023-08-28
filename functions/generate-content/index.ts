@@ -46,6 +46,7 @@ The titles should be written in the ${language} language.
 The titles should be less than 60 characters. 
 The titles should include the words from the topic "${_topic}".
 The titles should be in javascript array format.
+When I send you a software engineering term, keep the term in english.
 Do not use single quotes, double quotes or any other enclosing characters. 
 Do not self reference. Do not explain what you are doing.`
 
@@ -55,11 +56,13 @@ You have ${persona} as a persona.
 You have a ${tone_of_voice} tone of voice. You have a ${writing_style} writing style. 
 Create a long form content outline in the ${language} language for the blog post titled "${_title}". 
 The content outline should include a minimum of 20 headings and subheadings. 
+The content should include this keyword: ${topic}.
+When I send you a software engineering term, keep the term in english.
 The outline should be extensive and it should cover the entire topic. 
 Create detailed subheadings that are engaging and catchy. 
 Do not write the blog post, please only write the outline of the blog post. 
 The outline must be in HTML.
-Please do not number the headings. 
+Do not number the headings. 
 Please add a newline space between headings and subheadings. 
 Do not self reference. Do not explain what you are doing.
 Respond with the content inside a JSON for example: 
@@ -72,8 +75,9 @@ You have a ${tone_of_voice} tone of voice. You have a ${writing_style} writing s
 I will give you an outline for an article and I want you to expand in the ${language} language on each of the subheadings to create a complete article from it. 
 Please intersperse short and long sentences. Utilize uncommon terminology to enhance the originality of the content. 
 Please format the content in a professional format.
-The article must have at least 1000 words.
+The article must have at least 1000 words and follow SEO best practices.
 The content must be in HTML. 
+Do not number the headings. 
 Do not self reference. 
 Do not explain what you are doing. 
 Respond with the content inside a JSON for example: 
